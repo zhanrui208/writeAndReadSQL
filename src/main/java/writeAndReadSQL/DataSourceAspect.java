@@ -1,6 +1,6 @@
 package writeAndReadSQL;
  import org.apache.commons.lang3.StringUtils;  
- import org.aspectj.lang.JoinPoint; 
+import org.aspectj.lang.JoinPoint;
 public class DataSourceAspect {
 	/**
 	 * 在进入Service方法之前执行
