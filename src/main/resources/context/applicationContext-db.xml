@@ -12,8 +12,8 @@
 	<bean id="dataSource_writedb" class="com.alibaba.druid.pool.DruidDataSource"
 		init-method="init" destroy-method="close">
 		<!-- 基本属性 url、user、password -->
-		<property name="driverClassName" value="${jdbc.driverClassName.writedb}" />
-		<property name="url" value="${jdbc.url.db01}" />
+		<property name="driverClassName" value="${jdbc.driverClassName.db01}" />
+		<property name="url" value="${jdbc.url.writedb}" />
 		<property name="username" value="${jdbc.username.db01}" />
 		<property name="password" value="${jdbc.password.db01}" />
 
@@ -47,8 +47,8 @@
 	<bean id="dataSource_readdb" class="com.alibaba.druid.pool.DruidDataSource"
 		init-method="init" destroy-method="close">
 		<!-- 基本属性 url、user、password -->
-		<property name="driverClassName" value="${jdbc.driverClassName.readdb}" />
-		<property name="url" value="${jdbc.url.db01}" />
+		<property name="driverClassName" value="${jdbc.driverClassName.db01}" />
+		<property name="url" value="${jdbc.url.readdb}" />
 		<property name="username" value="${jdbc.username.db01}" />
 		<property name="password" value="${jdbc.password.db01}" />
 
@@ -81,13 +81,13 @@
 
 
 	<!-- 定义数据源，使用自己实现的数据源 -->
-	<bean id="dataSource" class="cn.itcast.usermanage.spring.DynamicDataSource">
+	<bean id="dataSource" class="writeAndReadSQL.DynamicDataSource">
 		<!-- 设置多个数据源 -->
 		<property name="targetDataSources">
 			<map key-type="java.lang.String">
 				<!-- 这个key需要和程序中的key一致 -->
 				<entry key="master" value-ref="masterDataSource" />
-				<entry key="slave" value-ref="slave01DataSource" />
+				<entry key="slave" value-ref="slaveDataSource" />
 			</map>
 		</property>
 		<!-- 设置默认的数据源，这里默认走写库 -->
@@ -118,12 +118,15 @@
 		</tx:attributes>
 	</tx:advice>
 
-	<bean class="cn.itcast.usermanage.spring.DataSourceAspect" id="dataSourceAspect" />
+	<bean  id="dataSourceAspect" class="writeAndReadSQL.DataSourceAspect" />
 
+	<bean id = "baseDao" class = "writeAndReadSQL.baseDao">
+	<property name="ds" ref = "dataSource" />
+	</bean>
 	<aop:config>
 		<!-- 定义切面，所有的service的所有方法 -->
 		<aop:pointcut id="txPointcut"
-			expression="execution(* xx.xxx.xxxxxxx.service.*.*(..))" />
+			expression="execution(* *.*(..))" />
 		<!-- 应用事务策略到Service切面 -->
 		<aop:advisor advice-ref="txAdvice" pointcut-ref="txPointcut" />
 
