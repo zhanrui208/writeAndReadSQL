@@ -79,19 +79,18 @@
 		<property name="filters" value="${druid.filters}" />
 	</bean>
 
-
+	<aop:aspectj-autoproxy proxy-target-class="true"/> 
 	<!-- 定义数据源，使用自己实现的数据源 -->
-	<bean id="dataSource" class="writeAndReadSQL.DynamicDataSource">
+	<bean id="dataSource" class="writeAndReadSQL.DynamicDataSource" >
 		<!-- 设置多个数据源 -->
 		<property name="targetDataSources">
 			<map key-type="java.lang.String">
 				<!-- 这个key需要和程序中的key一致 -->
-				<entry key="master" value-ref="masterDataSource" />
-				<entry key="slave" value-ref="slaveDataSource" />
+				<entry key="master" value-ref="dataSource_writedb" />
+				<entry key="slave" value-ref="dataSource_readdb" />
 			</map>
 		</property>
 		<!-- 设置默认的数据源，这里默认走写库 -->
-		<property name="defaultTargetDataSource" ref="masterDataSource" />
 	</bean>
 
 	<!-- 定义事务管理器 -->
@@ -120,13 +119,19 @@
 
 	<bean  id="dataSourceAspect" class="writeAndReadSQL.DataSourceAspect" />
 
+	<bean id ="dynamicDataSource" class="writeAndReadSQL.DynamicDataSource" />
+
+	<!-- -->
 	<bean id = "baseDao" class = "writeAndReadSQL.baseDao">
-	<property name="ds" ref = "dataSource" />
+		<property name="ds" ref = "dataSource" />
+	</bean>
+	  
+	<bean id = "shopDao" class = "writeAndReadSQL.shopDao" parent="baseDao" >
 	</bean>
 	<aop:config>
 		<!-- 定义切面，所有的service的所有方法 -->
 		<aop:pointcut id="txPointcut"
-			expression="execution(* *.*(..))" />
+			expression="execution(* *.*Shops(..))" />
 		<!-- 应用事务策略到Service切面 -->
 		<aop:advisor advice-ref="txAdvice" pointcut-ref="txPointcut" />
 

@@ -1,6 +1,8 @@
 package writeAndReadSQL;
  import org.apache.commons.lang3.StringUtils;  
 import org.aspectj.lang.JoinPoint;
+
+import com.alibaba.druid.sql.visitor.functions.Instr;
 public class DataSourceAspect {
 	/**
 	 * 在进入Service方法之前执行
@@ -28,6 +30,14 @@ public class DataSourceAspect {
 	 */
 	private Boolean isSlave(String methodName) {
 		// 方法名以query、find、get开头的方法名走从库
-		return StringUtils.startsWithAny(methodName, "query", "find", "get");
+		try{
+//			boolean b =  StringUtils.startsWithAny(methodName, "query", "find", "get");
+			return methodName.indexOf("sel")>-1 ? true : false;
+		}catch(Exception e){
+			e.printStackTrace();
+			return false;
+		}finally{
+			System.out.println("111");
+		}
 	}
 }
